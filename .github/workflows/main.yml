@@ -1,0 +1,50 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build and Publish
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Deploy to VPS (rsync over SSH)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          # if your port is 22, then you can just remove the port from this configuration #
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: "publish/*"
+          target: "/var/www/aspnet/demo/newsite"
+          rm: false
+          strip_components: 1
+          # Exclude App_Data folder from overwrite
+          exclude: "App_Data/*"
+
+      - name: Restart App on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: 30222
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd /var/www/aspnet/demo/newsite
+            # Example: restart systemd service
+            sudo systemctl stop kestrel-newsite
+            sudo systemctl start kestrel-newsite
