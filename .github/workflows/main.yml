@@ -33,8 +33,6 @@ jobs:
           target: "/var/www/aspnet/demo/newsite"
           rm: false
           strip_components: 1
-          # Exclude App_Data folder from overwrite
-          exclude: "App_Data/*"
 
       - name: Restart App on VPS
         uses: appleboy/ssh-action@v1.2.0
