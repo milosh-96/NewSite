@@ -46,6 +46,7 @@ jobs:
           script: |
             cd /var/www/aspnet/demo/newsite
             # Example: restart systemd service
+            sudo chmod -R 770 /var/www/aspnet/demo/newsite
             sudo chmod -R 770 /var/www/aspnet/demo/newsite/wwwroot
             sudo systemctl stop kestrel-newsite
             sudo systemctl start kestrel-newsite
