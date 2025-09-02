@@ -42,7 +42,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd /var/www/aspnet/demo/newsite
             # Example: restart systemd service
             sudo chmod 770 /var/www/aspnet/demo/newsite
             sudo chmod -R 770 /var/www/aspnet/demo/newsite/wwwroot
