@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - workflow-update
 
 jobs:
   deploy:
@@ -25,12 +26,11 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
-          # if your port is 22, then you can just remove the port from this configuration #
           port: ${{ secrets.VPS_PORT }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           source: "publish/*"
-          target: "/var/www/aspnet/demo/newsite"
+          target: "/var/www/aspnet/demo/newsite/temp"
           rm: false
           strip_components: 1
 
@@ -42,8 +42,11 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
+            cp -a /var/www/aspnet/demo/newsite/temp/. /var/www/aspnet/demo/newsite/publish/
+            rm -r /var/www/aspnet/demo/newsite/temp/*
             # Example: restart systemd service
-            sudo chmod 770 /var/www/aspnet/demo/newsite
-            sudo chmod -R 770 /var/www/aspnet/demo/newsite/wwwroot
             sudo systemctl stop kestrel-newsite
+            sudo chmod 770 /var/www/aspnet/demo/newsite/publish
+            sudo chmod -R 770 /var/www/aspnet/demo/newsite/publish/App_Data
+            sudo chmod -R 770 /var/www/aspnet/demo/newsite/publish/wwwroot
             sudo systemctl start kestrel-newsite
